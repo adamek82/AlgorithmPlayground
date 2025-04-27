@@ -22,7 +22,7 @@ static void runClosestPairTests() {
           { {0,0}, {5,5}, {3,3} },
           std::sqrt(8.0) },
 
-        { "Duplicates ⇒ zero",
+        { "Duplicates => zero",
           { {1,1}, {2,2}, {1,1}, {3,3} },
           0.0 },
 
@@ -37,7 +37,7 @@ static void runClosestPairTests() {
             {60,60}, {61,61} },
           1.0 },
 
-        { "Noisy Grid 4×5",
+        { "Noisy Grid 4 x 5",
           { {0,0}, {0,1}, {0,2}, {0,3}, {0,4},
             {1,0}, {1,1}, {1,2}, {1,3}, {1,4},
             {2,0}, {2,1}, {2,2}, {2,3}, {2,4},
