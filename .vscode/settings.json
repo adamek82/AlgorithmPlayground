@@ -1,5 +1,6 @@
 {
     "cmake.configureOnOpen": true,
+    "cmake.configureOnCMakeListsChange": true,
     "cmake.sourceDirectory": "${workspaceFolder}",
     "files.associations": {
         "atomic": "cpp",
