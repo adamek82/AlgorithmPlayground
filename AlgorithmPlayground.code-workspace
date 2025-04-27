@@ -6,6 +6,9 @@
     ],
     "settings": {
         "cmake.sourceDirectory": "${workspaceFolder}",
-        "cmake.configureOnOpen": true
+        "cmake.configureOnOpen": true,
+        "files.associations": {
+            "ostream": "cpp"
+        }
     }
 }
