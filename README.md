@@ -42,7 +42,7 @@ exercise’s unit tests so that a *single* run gives a green (or red!) report.
 
 | # | Topic | Files | Key Points |
 |---|-------|-------|------------|
-| 1 | **Closest Pair of Points** (Geometry) | `ClosestPairSolver.*` | Divide‑&‑conquer, \(O(n \log n)\) time, \(O(n)\) extra space |
+| 1 | **Closest Pair of Points** (Geometry) | `ClosestPairSolver.*` | Divide‑&‑conquer, \(O(n log n)\) time, \(O(n)\) extra space |
 | 2 | **In‑Memory Transactional KV‑Store** | `inMemoryDb.*` | Hash‑table CRUD with nested `BEGIN / ROLLBACK / COMMIT`; \(O(1)\) avg time per op |
 
 More exercises will be added over time – feel free to open an issue or PR with suggestions!
