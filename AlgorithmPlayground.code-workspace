@@ -9,7 +9,13 @@
         "cmake.configureOnOpen": true,
         "files.associations": {
             "ostream": "cpp",
-            "xstring": "cpp"
+            "xstring": "cpp",
+            "initializer_list": "cpp",
+            "list": "cpp",
+            "utility": "cpp",
+            "vector": "cpp",
+            "xhash": "cpp",
+            "xutility": "cpp"
         }
     }
 }

@@ -1,6 +1,7 @@
 #include "AlgorithmPlayground.h"
 #include "ClosestPairSolver.h"
 #include "inMemoryDb.h"
+#include "BitonicTSPSolver.h"
 
 // A simple struct to bundle each ClosestPairSolver test
 struct TestCase {
@@ -21,6 +22,14 @@ struct DbTestCase {
       : ops(std::move(o))
       , args(std::move(a))
       , expected(std::move(e)) {}
+};
+
+// TestCase struct to group input and expected output
+typedef std::vector<std::vector<double>> Arr;
+struct BitonicTestCase {
+    std::string name;
+    Arr arr;
+    double expected;
 };
 
 // All of our closest-pair tests live here
@@ -191,10 +200,38 @@ static void runInMemoryDbTests() {
     }
 }
 
+static void runBitonicTSPTests() {
+    const double EPS = 1e-3;
+    std::vector<BitonicTestCase> tests = {
+        {"7-point sample",
+         {{0,6}, {1,0}, {2,3}, {5,4}, {6,1}, {7,5}, {8,2}},
+         25.584}
+    };
+
+    std::cout << std::fixed << std::setprecision(3);
+    for (size_t i = 0; i < tests.size(); ++i) {
+        auto &tc = tests[i];
+        std::vector<Point> pts;
+        pts.reserve(tc.arr.size());
+        for (auto &p : tc.arr) pts.push_back({p[0], p[1]});
+
+        BitonicTSP solver(int(pts.size()));
+        double result = solver.solve(pts);
+        bool pass = std::fabs(result - tc.expected) < EPS;
+
+        std::cout << "Test " << (i+1) << ": " << tc.name
+                  << ": " << (pass?"PASS":"FAIL")
+                  << " (got " << result << ", exp "
+                  << tc.expected << ")\n";
+    }
+}
+
 int main() {
     cout << "Running ClosestPairSolver Tests:" << endl;
     runClosestPairTests();
     cout << "Running InMemoryDb Tests:" << endl;
     runInMemoryDbTests();
+    cout << "Running BitonicTSP Tests:" << endl;
+    runBitonicTSPTests();
     return 0;
 }
