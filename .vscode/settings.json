@@ -53,5 +53,9 @@
         "xstring": "cpp",
         "xtr1common": "cpp",
         "xutility": "cpp"
-    }
+    },
+    "terminal.integrated.commandDecorations": "never",
+    "terminal.integrated.enableCommandNavigation": false,
+    "terminal.integrated.shellIntegration.enabled": false,
+    "terminal.integrated.stickyScroll.enabled": false
 }

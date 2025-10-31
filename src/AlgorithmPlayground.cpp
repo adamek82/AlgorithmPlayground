@@ -2,6 +2,7 @@
 #include "ClosestPairSolver.h"
 #include "inMemoryDb.h"
 #include "BitonicTSPSolver.h"
+#include "LexiPathEngine.h"
 
 // A simple struct to bundle each ClosestPairSolver test
 struct TestCase {
@@ -226,6 +227,123 @@ static void runBitonicTSPTests() {
     }
 }
 
+// Run the lexicographic SSSP engine on an input blob that follows the "stdin" format:
+//   N M S
+//   M lines: u v w
+//   Q
+//   Q lines: ADD u v w | REM u v w | ASK t
+// It returns the concatenated outputs (each on its own line) for ASK commands.
+static std::string runLexiEngineFromString(const std::string& input) {
+    std::istringstream in(input);
+    std::ostringstream out;
+
+    int N, M, S;
+    if (!(in >> N >> M >> S)) {
+        return ""; // malformed input
+    }
+
+    DynamicDirectedGraph graph(N);
+    for (int i = 0; i < M; ++i) {
+        int u, v, w;
+        in >> u >> v >> w;
+        graph.addEdge(u, v, w);
+    }
+
+    LexiSSSP engine(graph, S);
+    engine.touch(); // ensure first ASK triggers recompute
+
+    int Q; in >> Q;
+    for (int i = 0; i < Q; ++i) {
+        std::string op; in >> op;
+        if (op == "ADD") {
+            int u, v, w; in >> u >> v >> w;
+            engine.addEdgeCmd(u, v, w);
+        } else if (op == "REM") {
+            int u, v, w; in >> u >> v >> w;
+            engine.removeEdgeCmd(u, v, w);
+        } else if (op == "ASK") {
+            int t; in >> t;
+            out << engine.ask(t) << '\n';
+        } else {
+            std::string rest; std::getline(in, rest); // skip unknown line
+        }
+    }
+    return out.str();
+}
+
+static void runLexiPathTests() {
+    struct Case {
+        std::string name;
+        std::string input;
+        std::string expected;
+    };
+
+    // Example from our discussion (corrected Q=8 so the last ASK is processed)
+    const std::string sample1 =
+        "5 5 1\n"
+        "1 2 3\n"
+        "1 3 5\n"
+        "2 4 4\n"
+        "3 4 4\n"
+        "4 5 6\n"
+        "8\n"
+        "ASK 5\n"
+        "ADD 1 5 100\n"
+        "ASK 5\n"
+        "REM 4 5 6\n"
+        "ASK 5\n"
+        "ADD 3 5 7\n"
+        "ASK 5\n"
+        "ASK 4\n";
+
+    // Explanation of expected:
+    // ASK 5 -> 6       (1-2-4-5 or 1-3-4-5: sum=13, bottleneck=6)
+    // ASK 5 -> 6       (+1->5(100) doesn't help, shortest is still 13)
+    // ASK 5 -> 100     (after removing 4->5, only 1->5(100) remains)
+    // ASK 5 -> 7       (adding 3->5(7) makes shortest 1->3->5 sum=12, bottleneck=7)
+    // ASK 4 -> 4       (to node 4: dist=7, best bottleneck=4)
+    const std::string expected1 =
+        "6\n"
+        "6\n"
+        "100\n"
+        "7\n"
+        "4\n";
+
+    // Second mini test: unreachable becomes reachable, then improved bottleneck
+    const std::string sample2 =
+        "4 1 1\n"
+        "1 2 5\n"
+        "6\n"
+        "ASK 4\n"        // unreachable
+        "ADD 2 4 10\n"   // path 1->2->4 (sum=15, bottleneck=10)
+        "ASK 4\n"
+        "ADD 1 3 7\n"    // add alternative via 3
+        "ADD 3 4 7\n"    // 1->3->4 (sum=14, bottleneck=7) => better sum, better bottleneck
+        "ASK 4\n";
+
+    const std::string expected2 =
+        "-1\n"
+        "10\n"
+        "7\n";
+
+    std::vector<Case> tests = {
+        {"Baseline with multiple updates", sample1, expected1},
+        {"Reachability and bottleneck improvement", sample2, expected2}
+    };
+
+    for (std::size_t i = 0; i < tests.size(); ++i) {
+        const auto& tc = tests[i];
+        std::string got = runLexiEngineFromString(tc.input);
+        bool pass = (got == tc.expected);
+        std::cout << "LexiSSSP Test " << (i+1) << ": " << tc.name
+                  << ": " << (pass ? "PASS" : "FAIL") << "\n";
+        if (!pass) {
+            std::cout << "  Expected:\n" << tc.expected
+                      << "  Got:\n"      << got;
+        }
+    }
+}
+
 int main() {
     cout << "Running ClosestPairSolver Tests:" << endl;
     runClosestPairTests();
@@ -233,5 +351,7 @@ int main() {
     runInMemoryDbTests();
     cout << "Running BitonicTSP Tests:" << endl;
     runBitonicTSPTests();
+    cout << "Running LexiSSSP Tests:" << endl;
+    runLexiPathTests();
     return 0;
 }
